@@ -1,5 +1,7 @@
 # 🐧 🛡️ Linux Network Security Configuration Guide
 
+[README en Español](./README.es.md)
+
 This repository contains network security configurations for Linux systems (Debian-based distributions) that help protect against various network attacks and improve system security.
 
 ## What is `99-network-security.conf`?
