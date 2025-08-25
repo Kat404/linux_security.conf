@@ -83,6 +83,38 @@ sysctl -a | grep -E 'net\.ipv4\.conf\.(all|default)\.(rp_filter|accept_redirects
 sysctl net.ipv4.conf.default.rp_filter net.ipv4.conf.all.rp_filter net.ipv6.conf.default.rp_filter net.ipv6.conf.all.rp_filter net.ipv4.tcp_syncookies net.ipv4.icmp_echo_ignore_broadcasts net.ipv4.icmp_ignore_bogus_error_responses net.ipv4.conf.all.accept_redirects net.ipv4.conf.default.accept_redirects net.ipv4.conf.all.send_redirects net.ipv6.conf.all.accept_redirects net.ipv6.conf.default.accept_redirects net.ipv4.ip_forward net.ipv4.conf.all.accept_source_route net.ipv4.conf.default.accept_source_route net.ipv6.conf.all.accept_source_route net.ipv6.conf.default.accept_source_route net.ipv4.conf.all.log_martians net.ipv4.tcp_timestamps net.ipv4.tcp_sack net.ipv4.tcp_dsack net.ipv4.tcp_fack net.ipv6.conf.all.disable_ipv6 net.ipv6.conf.default.disable_ipv6
 ```
 
+## Other Recommendations
+
+### Firewall
+
+Use a [firewall](https://en.wikipedia.org/wiki/Firewall_(computing)) and customize it according to your needs. On Ubuntu and its derivatives, **gufw** (GUI uncomplicated firewall) and **ufw** (uncomplicated firewall) are quite simple options to start implementing a firewall on your system and learn how a firewall works.
+
+### VPN
+
+Consider using a [VPN](https://en.wikipedia.org/wiki/Virtual_private_network) to encrypt your traffic and protect your online privacy. There are several options available, both open source and commercial, that you can implement on your system.
+
+The most secure and private options are:
+
+- [MullvadVPN](https://mullvad.net/en)
+- [ProtonVPN](https://protonvpn.com)
+- [IVPN](https://www.ivpn.net)
+
+### Guides
+
+Privacy and security are fundamental for human beings, and using the wrong tools can put you at risk. Here are some sites you can visit to improve your online privacy and security:
+
+- [PrivacyGuides](https://www.privacyguides.org/)
+- [AwesomePrivacy](https://awesome-privacy.xyz/)
+- [Personal Security Checklist](https://github.com/Lissy93/personal-security-checklist/blob/HEAD/CHECKLIST.md)
+
+### Reddit/Others
+
+Forums and other online communities can be valuable resources for obtaining information and advice about privacy and security. Some recommended subreddits are:
+
+- [r/privacy](https://www.reddit.com/r/privacy/)
+- [r/degoogle](https://www.reddit.com/r/degoogle/)
+- [r/PrivacyGuides](https://www.reddit.com/r/PrivacyGuides/)
+
 > **Note**:
 >
 > - These instructions are specific to Debian-based Linux distributions. For other distributions, please consult with your preferred AI assistant to verify any changes in the procedure and verification process.
