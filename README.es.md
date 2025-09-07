@@ -43,6 +43,42 @@ El archivo `99-network-security.conf` es un archivo de configuración del sistem
 
 - Opciones para deshabilitar IPv6 si no se necesita, reduciendo la superficie de ataque.
 
+### 8. Protecciones de TTY y Disciplinas de Línea
+
+- Previene la carga automática de disciplinas de línea en TTY para reducir la superficie de ataque.
+- Utiliza **dev.tty.ldisc_autoload** para controlar este comportamiento.
+
+### 9. Protecciones de Sistemas de Archivos
+
+- Endurecimiento contra interacciones maliciosas con archivos, incluyendo symlinks, hardlinks, FIFOs y archivos regulares.
+- Implementa protecciones a través de **fs.protected_fifos**, **fs.protected_hardlinks**, **fs.protected_regular** y **fs.protected_symlinks**.
+
+### 10. Restricciones de Acceso al Kernel
+
+- Restringe el acceso a información y funciones del kernel para reducir la superficie de explotación.
+- Utiliza **kernel.dmesg_restrict**, **kernel.io_uring_disabled**, **kernel.kexec_load_disabled**, **kernel.kptr_restrict**, **kernel.perf_event_paranoid**, **kernel.unprivileged_userfaultfd** y **kernel.slab_merging**.
+
+### 11. Protecciones Avanzadas de Red y TCP
+
+- Endurece la pila TCP y previene redirecciones no deseadas.
+- Implementa protecciones mediante **net.ipv4.tcp_rfc1337** y **net.ipv4.conf.*.shared_media**.
+
+### 12. Aleatorización de Memoria (ASLR)
+
+- Aumenta significativamente la aleatorización del diseño de memoria para dificultar los exploits.
+- Utiliza **vm.mmap_rnd_bits** y **vm.mmap_rnd_compat_bits** para un ASLR mejorado.
+
+### 13. Protecciones BPF y Namespaces de Usuario
+
+- Endurece el compilador JIT de BPF y restringe su uso a usuarios privilegiados.
+- Implementa **net.core.bpf_jit_harden**, **kernel.unprivileged_bpf_disabled** y **kernel.yama.ptrace_scope**.
+- Nota: Las restricciones de namespaces de usuario están comentadas por defecto para mantener compatibilidad con Flatpak y contenedores.
+
+### 14. Optimizaciones de Memoria y Swap
+
+- Optimiza la gestión de memoria reduciendo la tendencia a usar swap en sistemas con suficiente RAM.
+- Controlado por el parámetro **vm.swappiness**.
+
 ## 🚀 Guía de Implementación
 
 1. Abre una terminal.
@@ -50,7 +86,7 @@ El archivo `99-network-security.conf` es un archivo de configuración del sistem
 2. Crea el archivo de configuración con privilegios de root:
 
    ```bash
-   sudo nano /etc/sysctl.d/99-network-security.conf
+   sudo nano /etc/sysctl.d/99-network-security-es.conf
    ```
 
    (Puedes usar tu editor preferido como vim o gedit con sudo)
@@ -59,10 +95,16 @@ El archivo `99-network-security.conf` es un archivo de configuración del sistem
 
 4. Guarda y cierra el editor (en nano: Ctrl+O, Enter, Ctrl+X).
 
-5. Aplica los cambios:
+5. Aplica los cambios usando uno de estos métodos:
 
+   **Método 1**: Aplicar todas las configuraciones de sysctl (recomendado para la mayoría de usuarios)
    ```bash
    sudo sysctl --system
+   ```
+
+   **Método 2**: Aplicar solo esta configuración específica
+   ```bash
+   sudo sysctl -p /etc/sysctl.d/99-network-security-es.conf
    ```
 
 ## 🔍 Verificación de los Cambios
@@ -72,22 +114,88 @@ Puedes verificar la configuración aplicada usando cualquiera de estos comandos:
 ### Versión Compacta
 
 ```bash
-sysctl -a | grep -E 'net\.ipv4\.conf\.(all|default)\.(rp_filter|accept_redirects|send_redirects|accept_source_route|log_martians)|net\.ipv4\.(tcp_syncookies|icmp_echo_ignore_broadcasts|icmp_ignore_bogus_error_responses|ip_forward|tcp_timestamps|tcp_sack|tcp_dsack|tcp_fack)|net\.ipv6\.conf\.(all|default)\.(rp_filter|accept_redirects|accept_source_route|disable_ipv6)'
+sysctl -a | grep -E '
+net\.ipv4\.conf\.(all|default)\.(rp_filter|accept_redirects|send_redirects|accept_source_route|log_martians|shared_media)
+|net\.ipv4\.(tcp_syncookies|icmp_echo_ignore_broadcasts|icmp_ignore_bogus_error_responses|ip_forward|tcp_timestamps|tcp_sack|tcp_dsack|tcp_fack|tcp_rfc1337)
+|net\.ipv6\.conf\.(all|default)\.(rp_filter|accept_redirects|accept_source_route|disable_ipv6)
+|dev\.tty\.ldisc_autoload
+|fs\.(protected_fifos|protected_hardlinks|protected_regular|protected_symlinks)
+|kernel\.(dmesg_restrict|io_uring_disabled|kexec_load_disabled|kptr_restrict|perf_event_paranoid|unprivileged_userfaultfd|slab_merging|unprivileged_bpf_disabled)
+|kernel\.yama\.ptrace_scope
+|net\.core\.bpf_jit_harden
+|vm\.(mmap_rnd_bits|mmap_rnd_compat_bits|swappiness)'
 ```
 
 ### Versión Detallada
 
 ```bash
-sysctl net.ipv4.conf.default.rp_filter net.ipv4.conf.all.rp_filter net.ipv6.conf.default.rp_filter net.ipv6.conf.all.rp_filter net.ipv4.tcp_syncookies net.ipv4.icmp_echo_ignore_broadcasts net.ipv4.icmp_ignore_bogus_error_responses net.ipv4.conf.all.accept_redirects net.ipv4.conf.default.accept_redirects net.ipv4.conf.all.send_redirects net.ipv6.conf.all.accept_redirects net.ipv6.conf.default.accept_redirects net.ipv4.ip_forward net.ipv4.conf.all.accept_source_route net.ipv4.conf.default.accept_source_route net.ipv6.conf.all.accept_source_route net.ipv6.conf.default.accept_source_route net.ipv4.conf.all.log_martians net.ipv4.tcp_timestamps net.ipv4.tcp_sack net.ipv4.tcp_dsack net.ipv4.tcp_fack net.ipv6.conf.all.disable_ipv6 net.ipv6.conf.default.disable_ipv6
+sysctl \
+  net.ipv4.conf.default.rp_filter net.ipv4.conf.all.rp_filter \
+  net.ipv6.conf.default.rp_filter net.ipv6.conf.all.rp_filter \
+  net.ipv4.tcp_syncookies net.ipv4.icmp_echo_ignore_broadcasts net.ipv4.icmp_ignore_bogus_error_responses \
+  net.ipv4.conf.all.accept_redirects net.ipv4.conf.default.accept_redirects net.ipv4.conf.all.send_redirects \
+  net.ipv6.conf.all.accept_redirects net.ipv6.conf.default.accept_redirects \
+  net.ipv4.ip_forward net.ipv4.conf.all.accept_source_route net.ipv4.conf.default.accept_source_route \
+  net.ipv6.conf.all.accept_source_route net.ipv6.conf.default.accept_source_route \
+  net.ipv4.conf.all.log_martians net.ipv4.tcp_timestamps net.ipv4.tcp_sack net.ipv4.tcp_dsack net.ipv4.tcp_fack \
+  net.ipv6.conf.all.disable_ipv6 net.ipv6.conf.default.disable_ipv6 \
+  dev.tty.ldisc_autoload \
+  fs.protected_fifos fs.protected_hardlinks fs.protected_regular fs.protected_symlinks \
+  kernel.dmesg_restrict kernel.io_uring_disabled kernel.kexec_load_disabled kernel.kptr_restrict kernel.perf_event_paranoid kernel.unprivileged_userfaultfd kernel.slab_merging \
+  net.ipv4.tcp_rfc1337 net.ipv4.conf.all.shared_media net.ipv4.conf.default.shared_media \
+  vm.mmap_rnd_bits vm.mmap_rnd_compat_bits \
+  net.core.bpf_jit_harden kernel.unprivileged_bpf_disabled kernel.yama.ptrace_scope \
+  vm.swappiness
+```
+## 🔄 Compatibilidad
+
+### 🐧 Versión del Kernel Linux
+- Las reglas de sysctl son parámetros del kernel que funcionan en cualquier distribución con un kernel moderno (>=4.x).
+- Algunas opciones como `io_uring_disabled` o `bpf_jit_harden` requieren kernels más recientes (>=5.x para io_uring).
+
+### 💻 Arquitectura del Sistema
+- Configuraciones como `vm.mmap_rnd_bits=32` son específicas para arquitecturas de 64 bits.
+- En sistemas de 32 bits, el valor máximo permitido es menor.
+
+### 🖥️ Configuración Base de la Distribución
+- **Distribuciones orientadas a seguridad**  
+  Fedora (SELinux) o Whonix ya tienen muchas de estas protecciones habilitadas por defecto.
+  
+- **Distribuciones de propósito general**  
+  Debian, Ubuntu o Linux Mint requieren más ajustes manuales.
+  
+- **Distribuciones minimalistas**  
+  Alpine Linux puede tener comportamientos diferentes por defecto.
+
+### 🔍 Verificación de Compatibilidad
+
+#### Verificar si un parámetro existe
+```bash
+sysctl --all | grep "parámetro"
 ```
 
-## Otras Recomendaciones
+#### Verificar versión del kernel
+```bash
+uname -r
+```
 
-### Firewall
+#### Verificar arquitectura del sistema
+```bash
+uname -m
+```
+
+> **Nota importante**: 
+> - Esta configuración fue probada en distribuciones basadas en Debian/Ubuntu. 
+> - Arch Linux, al tener un kernel más actualizado, podría tener valores predeterminados diferentes.
+> - Siempre verifica la compatibilidad con tu kernel específico y realiza pruebas en un entorno controlado antes de implementar los cambios en producción.
+
+## 📌 Otras Recomendaciones
+
+### 🧱🔥 Firewall
 
 Utiliza un [firewall](https://es.wikipedia.org/wiki/Cortafuegos_(inform%C3%A1tica)) y personalízalo según tus necesidades. En Ubuntu y sus derivados está **gufw** (GUI uncomplicated firewall) y **ufw** (uncomplicated firewall) que son opciones bastante sencillas para empezar a implementar un firewall en tu sistema y aprender el cómo funciona un firewall.
 
-### VPN
+### 🔒 VPN
 
 Considera el uso de una [VPN](https://es.wikipedia.org/wiki/Red_privada_virtual) para cifrar tu tráfico y proteger tu privacidad en línea. Hay varias opciones disponibles, tanto de código abierto como comerciales, que puedes implementar en tu sistema.
 
@@ -97,7 +205,7 @@ Considera el uso de una [VPN](https://es.wikipedia.org/wiki/Red_privada_virtual)
 - [ProtonVPN](https://protonvpn.com/es/)
 - [IVPN](https://www.ivpn.net/es)
 
-### Guías
+### 📚 Guías
 
 La privacidad y la seguridad son algo fundamental para el ser humano y el utilizar las herramientas incorrectas puede llegar a ponerte en riesgo, a continuación, te dejo algunos sitios que puedes visitar para poder mejorar tu privacidad y seguridad en línea:
 
@@ -105,7 +213,7 @@ La privacidad y la seguridad son algo fundamental para el ser humano y el utiliz
 - [AwesomePrivacy](https://awesome-privacy.xyz/)
 - [Personal Security Checklist](https://github.com/Lissy93/personal-security-checklist/blob/HEAD/CHECKLIST.md)
 
-### Reddit/Demás
+### 💬 Reddit/Demás
 
 Los foros y demás comunidades en línea pueden ser recursos valiosos para obtener información y consejos sobre privacidad y seguridad. Algunos subreddits recomendados son:
 
@@ -113,7 +221,8 @@ Los foros y demás comunidades en línea pueden ser recursos valiosos para obten
 - [r/degoogle](https://www.reddit.com/r/degoogle/)
 - [r/PrivacyGuides](https://www.reddit.com/r/PrivacyGuides/)
 
-> **Nota**:
->
-> - Estas instrucciones son específicas para distribuciones Linux basadas en Debian. Para otras distribuciones, por favor consulta con tu asistente de IA preferido para verificar cualquier cambio en el procedimiento y proceso de verificación.
-> - ⚠️ **AVISO DE RESPONSABILIDAD**: La aplicación de estos ajustes de configuración se realiza bajo la responsabilidad del usuario. Aunque estos parámetros están bien documentados y se aplican a nivel del kernel, no vienen con ninguna garantía de funcionamiento. Es responsabilidad del usuario verificar los resultados y la compatibilidad en su propio sistema antes de aplicarlos en un entorno de producción.
+> ### ⚠️ **Nota Importante**
+> 
+> - **AVISO DE RESPONSABILIDAD**: La aplicación de estos ajustes de configuración se realiza bajo la responsabilidad del usuario. Aunque estos parámetros están bien documentados y se aplican a nivel del kernel, no vienen con ninguna garantía de funcionamiento.
+> 
+> - Es responsabilidad del usuario verificar los resultados y la compatibilidad en su propio sistema antes de aplicarlos en un entorno de producción.
