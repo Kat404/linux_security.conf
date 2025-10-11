@@ -1,5 +1,7 @@
 # 🐧 🛡️ Guía de Configuración de Seguridad de Red en Linux
 
+[![README in English](https://img.shields.io/badge/README-in%20English-blue.svg)](./README.md)
+
 Este repositorio contiene configuraciones de seguridad de red para sistemas Linux (distribuciones basadas en Debian) que ayudan a proteger contra varios ataques de red y mejoran la seguridad del sistema.
 
 ## ¿Qué es `99-network-security.conf`?

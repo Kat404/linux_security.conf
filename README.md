@@ -1,6 +1,6 @@
 # 🐧 🛡️ Linux Network Security Configuration Guide
 
-[README en Español](./README.es.md)
+[![README en Español](https://img.shields.io/badge/README-en%20Español-blue.svg)](./README.es.md)
 
 This repository contains network security configurations for Linux systems (Debian-based distributions) that help protect against various network attacks and improve system security.
 
