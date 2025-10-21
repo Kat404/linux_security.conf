@@ -1,12 +1,12 @@
-# 🐧 🛡️ Linux Network Security Configuration Guide
+# 🐧 🛡️ Linux Security Configuration Guide
 
 [![README en Español](https://img.shields.io/badge/README-en%20Español-blue.svg)](./README-es.md)
 
-This repository contains network security configurations for Linux systems (Debian-based distributions) that help protect against various network attacks and improve system security.
+This repository contains security configurations for Linux systems (Debian-based distributions) that help protect against various attacks and improve system security.
 
 ## What is `99-network-security.conf`?
 
-The `99-network-security.conf` file is a system configuration file that sets various kernel parameters to enhance network security. It contains carefully tuned settings divided into several sections, each addressing specific security concerns.
+The `99-network-security.conf` file is a system configuration file that sets various kernel parameters to enhance security via sysctl. It contains carefully tuned settings divided into several sections, each addressing specific security concerns.
 
 ## Configuration Sections and Their Purpose
 
@@ -21,6 +21,7 @@ The `99-network-security.conf` file is a system configuration file that sets var
 - **tcp_syncookies**: Enables protection against SYN flood attacks.
 - **icmp_echo_ignore_broadcasts**: Prevents Smurf attack/DoS attempts.
 - **icmp_ignore_bogus_error_responses**: Enhances privacy by ignoring suspicious ICMP errors.
+- **icmp_echo_ignore_all (IPv4) / icmp.echo_ignore_all (IPv6)**: Ignores all incoming pings for stealth mode without affecting VPN connectivity.
 
 ### 3. ICMP Redirects and MITM Protection
 
@@ -39,11 +40,12 @@ The `99-network-security.conf` file is a system configuration file that sets var
 ### 6. TCP Optimizations and Anti-Fingerprinting
 
 - **tcp_timestamps**: Can be disabled to reduce OS fingerprinting.
-- Enables selective ACK, D-SACK, and FACK for efficient and secure network performance.
+- Disables SACK and D-SACK to reduce kernel attack surface (FACK removed as it depends on SACK).
 
 ### 7. IPv6 Controls
 
 - Options to disable IPv6 if not needed, reducing attack surface.
+- **use_tempaddr**: Enables IPv6 privacy extensions (RFC 4941) to use temporary, randomized addresses for improved privacy.
 
 ### 8. TTY and Line Disciplines Protections
 
@@ -54,16 +56,21 @@ The `99-network-security.conf` file is a system configuration file that sets var
 
 - Hardening against malicious file interactions including symlinks, hardlinks, FIFOs, and regular files.
 - Implements protections through **fs.protected_fifos**, **fs.protected_hardlinks**, **fs.protected_regular**, and **fs.protected_symlinks**.
+- **fs.binfmt_misc.status**: Disable support for non-native binaries if not needed to reduce kernel attack surface.
+- **fs.suid_dumpable**: Prevent privileged (SUID) processes from generating core dumps with sensitive data.
 
 ### 10. Kernel Access Restrictions
 
 - Restricts access to kernel information and features to reduce exploitation surface.
-- Uses **kernel.dmesg_restrict**, **kernel.io_uring_disabled**, **kernel.kexec_load_disabled**, **kernel.kptr_restrict**, **kernel.perf_event_paranoid**, **kernel.unprivileged_userfaultfd**, and **kernel.slab_merging**.
+- Uses **kernel.dmesg_restrict**, **kernel.io_uring_disabled**, **kernel.kexec_load_disabled**, **kernel.kptr_restrict**, **kernel.perf_event_paranoid**, and **kernel.slab_merging**.
+- Additional kernel controls: **kernel.sysrq**, **kernel.oops_limit**, **kernel.warn_limit**, **kernel.panic**, **kernel.printk**, **kernel.core_pattern** to strengthen security and minimize information leaks.
+- **vm.unprivileged_userfaultfd**: Disable userfaultfd for unprivileged users to mitigate use-after-free style vulnerabilities.
 
 ### 11. Advanced Network and TCP Protections
 
 - Hardens TCP stack and prevents unwanted redirects.
 - Implements **net.ipv4.tcp_rfc1337** and **net.ipv4.conf.*.shared_media** protections.
+- LAN ARP hardening: **net.ipv4.conf.*.arp_filter**, **net.ipv4.conf.*.arp_ignore**, **net.ipv4.conf.all.drop_gratuitous_arp** to mitigate ARP spoofing/MITM.
 
 ### 12. Memory Randomization (ASLR)
 
@@ -100,11 +107,13 @@ The `99-network-security.conf` file is a system configuration file that sets var
 5. Apply the changes using one of these methods:
 
    **Method 1**: Apply all sysctl configurations (recommended for most users)
+
    ```bash
    sudo sysctl --system
    ```
 
    **Method 2**: Apply only this specific configuration
+
    ```bash
    sudo sysctl -p /etc/sysctl.d/99-network-security.conf
    ```
@@ -113,19 +122,23 @@ The `99-network-security.conf` file is a system configuration file that sets var
 
 You can verify the applied settings using either of these commands:
 
-### Compact Version
+### Complete Version (all the System)
 
 ```bash
 sysctl -a | grep -E '
 net\.ipv4\.conf\.(all|default)\.(rp_filter|accept_redirects|send_redirects|accept_source_route|log_martians|shared_media)
-|net\.ipv4\.(tcp_syncookies|icmp_echo_ignore_broadcasts|icmp_ignore_bogus_error_responses|ip_forward|tcp_timestamps|tcp_sack|tcp_dsack|tcp_fack|tcp_rfc1337)
-|net\.ipv6\.conf\.(all|default)\.(rp_filter|accept_redirects|accept_source_route|disable_ipv6)
+|net\.ipv4\.(tcp_syncookies|icmp_echo_ignore_broadcasts|icmp_ignore_bogus_error_responses|icmp_echo_ignore_all|ip_forward|tcp_timestamps|tcp_sack|tcp_dsack|tcp_rfc1337)
+|net\.ipv6\.conf\.(all|default)\.(rp_filter|accept_redirects|accept_source_route|disable_ipv6|use_tempaddr)
+|net\.ipv6\.icmp\.echo_ignore_all
 |dev\.tty\.ldisc_autoload
-|fs\.(protected_fifos|protected_hardlinks|protected_regular|protected_symlinks)
-|kernel\.(dmesg_restrict|io_uring_disabled|kexec_load_disabled|kptr_restrict|perf_event_paranoid|unprivileged_userfaultfd|slab_merging|unprivileged_bpf_disabled)
+|fs\.(protected_fifos|protected_hardlinks|protected_regular|protected_symlinks|binfmt_misc\.status|suid_dumpable)
+|kernel\.(dmesg_restrict|io_uring_disabled|kexec_load_disabled|kptr_restrict|perf_event_paranoid|slab_merging|sysrq|oops_limit|warn_limit|panic|printk|core_pattern)
 |kernel\.yama\.ptrace_scope
 |net\.core\.bpf_jit_harden
-|vm\.(mmap_rnd_bits|mmap_rnd_compat_bits|swappiness)'
+|kernel\.unprivileged_bpf_disabled
+|vm\.(mmap_rnd_bits|mmap_rnd_compat_bits|swappiness|unprivileged_userfaultfd)
+|net\.ipv4\.conf\.\*\.(arp_filter|arp_ignore)
+|net\.ipv4\.conf\.all\.drop_gratuitous_arp'
 ```
 
 ### Detailed Version
@@ -135,32 +148,41 @@ sysctl \
   net.ipv4.conf.default.rp_filter net.ipv4.conf.all.rp_filter \
   net.ipv6.conf.default.rp_filter net.ipv6.conf.all.rp_filter \
   net.ipv4.tcp_syncookies net.ipv4.icmp_echo_ignore_broadcasts net.ipv4.icmp_ignore_bogus_error_responses \
+  net.ipv4.icmp_echo_ignore_all net.ipv6.icmp.echo_ignore_all \
   net.ipv4.conf.all.accept_redirects net.ipv4.conf.default.accept_redirects net.ipv4.conf.all.send_redirects \
   net.ipv6.conf.all.accept_redirects net.ipv6.conf.default.accept_redirects \
   net.ipv4.ip_forward net.ipv4.conf.all.accept_source_route net.ipv4.conf.default.accept_source_route \
   net.ipv6.conf.all.accept_source_route net.ipv6.conf.default.accept_source_route \
-  net.ipv4.conf.all.log_martians net.ipv4.tcp_timestamps net.ipv4.tcp_sack net.ipv4.tcp_dsack net.ipv4.tcp_fack \
+  net.ipv4.conf.all.log_martians net.ipv4.tcp_timestamps net.ipv4.tcp_sack net.ipv4.tcp_dsack \
   net.ipv6.conf.all.disable_ipv6 net.ipv6.conf.default.disable_ipv6 \
+  net.ipv6.conf.all.use_tempaddr net.ipv6.conf.default.use_tempaddr \
   dev.tty.ldisc_autoload \
   fs.protected_fifos fs.protected_hardlinks fs.protected_regular fs.protected_symlinks \
-  kernel.dmesg_restrict kernel.io_uring_disabled kernel.kexec_load_disabled kernel.kptr_restrict kernel.perf_event_paranoid kernel.unprivileged_userfaultfd kernel.slab_merging \
+  fs.binfmt_misc.status fs.suid_dumpable \
+  kernel.dmesg_restrict kernel.io_uring_disabled kernel.kexec_load_disabled kernel.kptr_restrict kernel.perf_event_paranoid kernel.slab_merging \
+  kernel.sysrq kernel.oops_limit kernel.warn_limit kernel.panic kernel.printk kernel.core_pattern \
   net.ipv4.tcp_rfc1337 net.ipv4.conf.all.shared_media net.ipv4.conf.default.shared_media \
+  net.ipv4.conf.all.drop_gratuitous_arp \
   vm.mmap_rnd_bits vm.mmap_rnd_compat_bits \
   net.core.bpf_jit_harden kernel.unprivileged_bpf_disabled kernel.yama.ptrace_scope \
+  vm.unprivileged_userfaultfd \
   vm.swappiness
 ```
 
 ## 🔄 Compatibility
 
 ### 🐧 Linux Kernel Version
+
 - The sysctl rules are kernel parameters that work on any distribution with a modern kernel (>=4.x).
 - Some options like `io_uring_disabled` or `bpf_jit_harden` require relatively recent kernels (>=5.x for io_uring).
 
 ### 💻 System Architecture
+
 - Configurations like `vm.mmap_rnd_bits=32` are specific to 64-bit architectures.
 - On 32-bit systems, the maximum allowed value is lower.
 
 ### 🖥️ Distribution Base Configuration
+
 - **Security-focused distributions**  
   Fedora (SELinux) or Whonix already have many of these protections enabled by default.
   
@@ -173,21 +195,25 @@ sysctl \
 ### 🔍 Compatibility Verification
 
 #### Check if a parameter exists
+
 ```bash
 sysctl --all | grep "parameter"
 ```
 
 #### Check kernel version
+
 ```bash
 uname -r
 ```
 
 #### Check system architecture
+
 ```bash
 uname -m
 ```
 
-> **Important note**: 
+> **Important note**:
+
 > - This configuration was tested on Debian/Ubuntu-based distributions.
 > - Arch Linux, having a more up-to-date kernel, might have different default values.
 > - Always verify compatibility with your specific kernel and test in a controlled environment before implementing changes in production.
