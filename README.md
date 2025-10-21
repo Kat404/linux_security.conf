@@ -1,12 +1,16 @@
 # 🐧 🛡️ Linux Security Configuration Guide
 
-[![README en Español](https://img.shields.io/badge/README-en%20Español-blue.svg)](./README-es.md)
+<div align="left">
+  <a href="./README-es.md">
+    <img src="https://img.shields.io/badge/README_en_Español-1a5fb4?style=for-the-badge&logo=googletranslate&logoColor=white" alt="README en Español">
+  </a>
+</div>
 
 This repository contains security configurations for Linux systems (Debian-based distributions) that help protect against various attacks and improve system security.
 
-## What is `99-network-security.conf`?
+## What is `99-linux-security.conf`?
 
-The `99-network-security.conf` file is a system configuration file that sets various kernel parameters to enhance security via sysctl. It contains carefully tuned settings divided into several sections, each addressing specific security concerns.
+The `99-linux-security.conf` file is a system configuration file that sets various kernel parameters to enhance security via sysctl. It contains carefully tuned settings divided into several sections, each addressing specific security concerns.
 
 ## Configuration Sections and Their Purpose
 
@@ -95,12 +99,12 @@ The `99-network-security.conf` file is a system configuration file that sets var
 2. Create the configuration file with root privileges:
 
    ```bash
-   sudo nano /etc/sysctl.d/99-network-security.conf
+   sudo nano /etc/sysctl.d/99-linux-security.conf
    ```
 
    (You can use your preferred editor like vim or gedit with sudo)
 
-3. Copy and Paste the contents of [`99-network-security.conf`](./99-network-security.conf), modify the configuration according to your needs.
+3. Copy and Paste the contents of [`99-linux-security.conf`](./99-linux-security.conf), modify the configuration according to your needs.
 
 4. Save and close the editor (in nano: Ctrl+O, Enter, Ctrl+X).
 
@@ -115,7 +119,7 @@ The `99-network-security.conf` file is a system configuration file that sets var
    **Method 2**: Apply only this specific configuration
 
    ```bash
-   sudo sysctl -p /etc/sysctl.d/99-network-security.conf
+   sudo sysctl -p /etc/sysctl.d/99-linux-security.conf
    ```
 
 ## 🔍 Verifying the Changes

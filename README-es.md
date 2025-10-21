@@ -1,12 +1,16 @@
 # 🐧 🛡️ Guía de Configuración de Seguridad en Linux
 
-[![README in English](https://img.shields.io/badge/README-in%20English-blue.svg)](./README.md)
+<div align="left">
+  <a href="./README.md">
+    <img src="https://img.shields.io/badge/English_README-1a5fb4?style=for-the-badge&logo=googletranslate&logoColor=white" alt="English README">
+  </a>
+</div>
 
 Este repositorio contiene configuraciones de seguridad para sistemas Linux (distribuciones basadas en Debian) que ayudan a proteger contra varios ataques y mejoran la seguridad del sistema.
 
-## ¿Qué es `99-network-security.conf`?
+## ¿Qué es `99-linux-security-es.conf`?
 
-El archivo `99-network-security.conf` es un archivo de configuración del sistema que establece varios parámetros del kernel para mejorar la seguridad total y completa del sistema usando sysctl. Contiene ajustes cuidadosamente configurados divididos en varias secciones, cada una abordando preocupaciones específicas de seguridad.
+El archivo `99-linux-security-es.conf` es un archivo de configuración del sistema que establece varios parámetros del kernel para mejorar la seguridad total y completa del sistema usando sysctl. Contiene ajustes cuidadosamente configurados divididos en varias secciones, cada una abordando preocupaciones específicas de seguridad.
 
 ## Secciones de Configuración y Su Propósito
 
@@ -95,12 +99,12 @@ El archivo `99-network-security.conf` es un archivo de configuración del sistem
 2. Crea el archivo de configuración con privilegios de root:
 
    ```bash
-   sudo nano /etc/sysctl.d/99-network-security-es.conf
+   sudo nano /etc/sysctl.d/99-linux-security-es.conf
    ```
 
    (Puedes usar tu editor preferido como vim o gedit con sudo)
 
-3. Copia y Pega el contenido del archivo [`99-network-security-es.conf`](./99-network-security-es.conf), modifica la configuración según tus necesidades.
+3. Copia y Pega el contenido del archivo [`99-linux-security-es.conf`](./99-linux-security-es.conf), modifica la configuración según tus necesidades.
 
 4. Guarda y cierra el editor (en nano: Ctrl+O, Enter, Ctrl+X).
 
@@ -115,7 +119,7 @@ El archivo `99-network-security.conf` es un archivo de configuración del sistem
    **Método 2**: Aplicar solo esta configuración específica
 
    ```bash
-   sudo sysctl -p /etc/sysctl.d/99-network-security-es.conf
+   sudo sysctl -p /etc/sysctl.d/99-linux-security-es.conf
    ```
 
 ## 🔍 Verificación de los Cambios
