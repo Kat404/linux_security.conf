@@ -71,7 +71,52 @@ The SSH service (`sshd`) is often the primary remote entry point to a server. Co
   MACs hmac-sha2-512-etm@openssh.com
   ```
 
-*You can use the [`ssh_hardening.sh`](./ssh_hardening.sh) script to generate or apply these directives automatically.*
+### ⚙️ Application Methods
+
+#### Option 1: Script Audit and Application
+
+The [`ssh_hardening.sh`](./ssh_hardening.sh) script features an interactive menu:
+
+1. Conduct a **passive audit (read-only mode)** to evaluate your current setup without making changes.
+2. Apply hardening directives automatically, creating backups and validating syntax before restarting the daemon.
+
+---
+
+#### Option 2: Manual Configuration and Verification (Safe DIY)
+
+To modify the configuration file manually without risk of being locked out:
+
+1. **Create an immediate backup:**
+
+   ```bash
+   sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
+   ```
+
+2. **Edit the configuration:**
+
+   Open `/etc/ssh/sshd_config` with privileges (e.g., `sudo hx /etc/ssh/sshd_config`) and adjust or add the directives listed above.
+
+3. **Verify configuration syntax (CRITICAL!):**
+
+   Before reloading or restarting the SSH service, check if the input directives are valid and supported by your local OpenSSH version:
+
+   ```bash
+   sudo sshd -t
+   ```
+
+   - If the command returns errors, **do not restart the daemon**. Restore the original file (`sudo cp /etc/ssh/sshd_config.bak /etc/ssh/sshd_config`) and fix the reported lines.
+
+4. **Restart the service safely:**
+
+   Once `sshd -t` runs silently (indicating no syntax errors), restart the daemon:
+
+   ```bash
+   # On Arch Linux / RHEL / Fedora
+   sudo systemctl restart sshd
+
+   # On Debian / Ubuntu
+   sudo systemctl restart ssh
+   ```
 
 ---
 

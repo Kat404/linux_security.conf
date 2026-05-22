@@ -85,11 +85,11 @@ mat2 --inplace file.jpg
 
 ---
 
-## 🤖 Script Automation
+## ⚙️ Cleanup Methods
 
-We have provided the [`clean_metadata.sh`](./clean_metadata.sh) script to automate metadata cleanup for individual files or entire folders recursively.
+### Option 1: Script Automation
 
-### Run the script:
+We have provided the [`clean_metadata.sh`](./clean_metadata.sh) script to automate metadata cleanup for individual files or entire folders recursively, verifying format compatibility beforehand to avoid terminal errors.
 
 1. Grant execution permissions:
 
@@ -97,8 +97,30 @@ We have provided the [`clean_metadata.sh`](./clean_metadata.sh) script to automa
    chmod +x clean_metadata.sh
    ```
 
-2. Run it by passing a file or an entire directory as an argument:
+2. Run it by passing a file or directory as an argument:
 
    ```bash
    ./clean_metadata.sh /path/to/directory_or_file
    ```
+
+_Use the `-i` or `--inplace` flag before the path to overwrite the original files directly._
+
+---
+
+### Option 2: Manual Recursive Cleanup (DIY)
+
+If you prefer to skip the script and clean metadata recursively in a full directory using native terminal commands:
+
+#### Standard cleanup (creates `.cleaned` copies)
+
+```bash
+find /path/to/directory -type f -exec mat2 {} +
+```
+
+#### Destructive cleanup (overwrites original files directly)
+
+```bash
+find /path/to/directory -type f -exec mat2 --inplace {} +
+```
+
+_Note: Using `find ... -exec mat2` directly will print warning messages for any unsupported file formats found. The automated script avoids this by validating format support for each file beforehand._

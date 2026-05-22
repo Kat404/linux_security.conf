@@ -37,7 +37,7 @@ By default, DNS queries are sent in plaintext (port 53), which allows your ISP o
 
 `systemd-resolved` is the cleanest and lightest way to implement DoT on modern systems without heavy additional software.
 
-1. Edit the `/etc/systemd/resolved.conf` file by configuring secure DNS servers (e.g., **Quad9** without logs and with malware filtering, or **Mullvad**):
+1. Edit the `/etc/systemd/resolved.conf` file by configuring secure DNS servers supporting DoT and DNSSEC (e.g., **Quad9** without logs and with malware filtering, or **Mullvad**):
 
    ```ini
    [Resolve]
@@ -45,9 +45,11 @@ By default, DNS queries are sent in plaintext (port 53), which allows your ISP o
    FallbackDNS=45.90.28.0#dns.nextdns.io
    Domains=~.
    DNSOverTLS=yes
+   DNSSEC=yes
    ```
 
-   _The `Domains=~.` parameter instructs resolved to send all DNS queries to the configured server._
+   * The `Domains=~.` parameter instructs `resolved` to send all DNS queries to the configured server.
+   * `DNSSEC=yes` enables client-side cryptographic validation of DNSSEC signatures to guarantee record integrity and authenticity (preventing cache poisoning and spoofing). If your ISP or local network strips or alters these signatures, DNS resolution will fail for security. If you prefer fallback compatibility in networks hostile to DNSSEC, use `allow-downgrade`.
 
 2. Restart and enable the service:
 

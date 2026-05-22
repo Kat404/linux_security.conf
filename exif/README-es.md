@@ -85,11 +85,11 @@ mat2 --inplace archivo.jpg
 
 ---
 
-## 🤖 Automatización con Script
+## ⚙️ Métodos de Limpieza
 
-Hemos provisto el script [`clean_metadata.sh`](./clean_metadata.sh) para automatizar la limpieza de archivos individuales o carpetas de manera recursiva.
+### Opción 1: Automatización con Script
 
-### Ejecutar el script:
+Hemos provisto el script [`clean_metadata.sh`](./clean_metadata.sh) para automatizar la limpieza de archivos individuales o carpetas recursivamente, comprobando antes si cada formato es compatible para evitar errores en terminal.
 
 1. Dale permisos de ejecución:
 
@@ -97,8 +97,30 @@ Hemos provisto el script [`clean_metadata.sh`](./clean_metadata.sh) para automat
    chmod +x clean_metadata.sh
    ```
 
-2. Ejecútalo pasándole como argumento un archivo o un directorio entero:
+2. Ejecútalo pasándole como argumento un archivo o directorio:
 
    ```bash
    ./clean_metadata.sh /ruta/al/directorio_o_archivo
    ```
+
+_Usa la bandera `-i` o `--inplace` antes de la ruta para sobrescribir directamente el archivo original._
+
+---
+
+### Opción 2: Ejecución Manual Recursiva (DIY)
+
+Si prefieres no usar el script y limpiar metadatos de forma atómica en un directorio completo usando herramientas nativas de terminal:
+
+#### Limpieza estándar (crea copias `.cleaned`)
+
+```bash
+find /ruta/al/directorio -type f -exec mat2 {} +
+```
+
+#### Limpieza destructiva (sobrescribe archivos originales directly)
+
+```bash
+find /ruta/al/directorio -type f -exec mat2 --inplace {} +
+```
+
+_Nota: Al usar `find ... -exec mat2`, `mat2` imprimirá mensajes de advertencia si encuentra archivos no soportados. El script automatizado evita esto validando la compatibilidad de cada archivo primero._

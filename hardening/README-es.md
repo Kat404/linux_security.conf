@@ -71,7 +71,52 @@ El servicio SSH (`sshd`) suele ser la principal puerta de entrada remota a un se
   MACs hmac-sha2-512-etm@openssh.com
   ```
 
-_Puedes usar el script [`ssh_hardening.sh`](./ssh_hardening.sh) para generar o aplicar automáticamente estas directivas._
+### ⚙️ Métodos de Aplicación
+
+#### Opción 1: Auditoría y Aplicación con Script
+
+El script [`ssh_hardening.sh`](./ssh_hardening.sh) cuenta con un menú interactivo:
+
+1. Permite realizar una **auditoría pasiva (modo lectura)** que evalúa el estado actual sin aplicar cambios.
+2. Aplica las directivas de forma automática, realizando un backup y verificando la sintaxis del archivo antes de reiniciar el daemon.
+
+---
+
+#### Opción 2: Configuración Manual y Verificación (DIY Seguro)
+
+Para modificar el archivo de configuración manualmente sin riesgos de quedar excluido (_lockout_):
+
+1. **Crear una copia de seguridad inmediata:**
+
+   ```bash
+   sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
+   ```
+
+2. **Editar la configuración:**
+
+   Abre el archivo `/etc/ssh/sshd_config` con privilegios (ej. `sudo hx /etc/ssh/sshd_config`) y ajusta o agrega las directivas del listado anterior.
+
+3. **Verificar la sintaxis de la configuración (¡CRÍTICO!):**
+
+   Antes de recargar o reiniciar el servicio de SSH, comprueba que las directivas ingresadas sean válidas y soportadas por tu versión local de OpenSSH:
+
+   ```bash
+   sudo sshd -t
+   ```
+
+   - Si el comando devuelve errores, **no reinicies el daemon**. Restaura el archivo original (`sudo cp /etc/ssh/sshd_config.bak /etc/ssh/sshd_config`) y corrige la línea señalada.
+
+4. **Reiniciar el servicio de forma segura:**
+
+   Una vez que el comando `sshd -t` sea silencioso (indica que no hay errores de sintaxis), reinicia el daemon:
+
+   ```bash
+   # En Arch Linux / RHEL / Fedora
+   sudo systemctl restart sshd
+
+   # En Debian / Ubuntu
+   sudo systemctl restart ssh
+   ```
 
 ---
 

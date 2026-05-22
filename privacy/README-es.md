@@ -37,7 +37,7 @@ Por defecto, las consultas DNS se envían en texto plano (puerto 53), lo que per
 
 `systemd-resolved` es la forma más limpia y ligera de implementar DoT en sistemas modernos sin software adicional pesado.
 
-1. Edita el archivo `/etc/systemd/resolved.conf` configurando servidores DNS seguros (ej. **Quad9** sin logs y con filtro de malware, o **Mullvad**):
+1. Edita el archivo `/etc/systemd/resolved.conf` configurando servidores DNS seguros con soporte DoT y DNSSEC (ej. **Quad9** sin logs y con filtro de malware, o **Mullvad**):
 
    ```ini
    [Resolve]
@@ -45,9 +45,11 @@ Por defecto, las consultas DNS se envían en texto plano (puerto 53), lo que per
    FallbackDNS=45.90.28.0#dns.nextdns.io
    Domains=~.
    DNSOverTLS=yes
+   DNSSEC=yes
    ```
 
-   _El parámetro `Domains=~.` indica a resolved que envíe todas las consultas DNS al servidor configurado._
+   * El parámetro `Domains=~.` indica a `resolved` que envíe todas las consultas DNS al servidor configurado.
+   * `DNSSEC=yes` activa la validación criptográfica en el cliente de las firmas DNSSEC para garantizar la integridad y autenticidad de los registros (evitando envenenamiento de caché y falsificaciones). Si el ISP o la red bloquean o alteran estas firmas, la resolución fallará por seguridad. Si prefieres tolerancia a fallos en redes hostiles a DNSSEC a costa de seguridad, usa `allow-downgrade`.
 
 2. Reinicia e inicia el servicio:
 
